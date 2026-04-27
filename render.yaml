@@ -1,12 +1,5 @@
 services:
-  # 1. MySQL Database
-  - type: database
-    name: cardiosense-db
-    databaseName: cardiosense
-    user: admin
-    plan: free
-
-  # 2. FastAPI Backend
+  # 1. FastAPI Backend
   - type: web
     name: cardiosense-backend
     runtime: docker
@@ -15,23 +8,15 @@ services:
     plan: free
     envVars:
       - key: DB_HOST
-        fromDatabase:
-          name: cardiosense-db
-          property: host
+        sync: false # You will fill this in the Render Dashboard
       - key: DB_USER
-        fromDatabase:
-          name: cardiosense-db
-          property: user
+        sync: false
       - key: DB_PASSWORD
-        fromDatabase:
-          name: cardiosense-db
-          property: password
+        sync: false
       - key: DB_NAME
-        fromDatabase:
-          name: cardiosense-db
-          property: name
+        sync: false
 
-  # 3. Streamlit Frontend
+  # 2. Streamlit Frontend
   - type: web
     name: cardiosense-frontend
     runtime: docker
