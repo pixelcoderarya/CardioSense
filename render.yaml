@@ -1,0 +1,43 @@
+services:
+  # 1. MySQL Database
+  - type: database
+    name: cardiosense-db
+    databaseName: cardiosense
+    user: admin
+    plan: free
+
+  # 2. FastAPI Backend
+  - type: web
+    name: cardiosense-backend
+    runtime: docker
+    dockerContext: .
+    dockerfilePath: backend/Dockerfile
+    plan: free
+    envVars:
+      - key: DB_HOST
+        fromDatabase:
+          name: cardiosense-db
+          property: host
+      - key: DB_USER
+        fromDatabase:
+          name: cardiosense-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: cardiosense-db
+          property: password
+      - key: DB_NAME
+        fromDatabase:
+          name: cardiosense-db
+          property: name
+
+  # 3. Streamlit Frontend
+  - type: web
+    name: cardiosense-frontend
+    runtime: docker
+    dockerContext: .
+    dockerfilePath: frontend/Dockerfile
+    plan: free
+    envVars:
+      - key: API_URL
+        value: https://cardiosense-backend.onrender.com/predict

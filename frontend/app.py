@@ -7,6 +7,8 @@ import os
 
 # FastAPI Backend URL
 API_URL = os.getenv("API_URL", "http://localhost:8000/predict")
+if not API_URL.endswith("/predict"):
+    API_URL = f"{API_URL.rstrip('/')}/predict"
 
 st.set_page_config(
     page_title="CardioSense AI",
