@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+env/
+build/
+dist/
+
+# ML Models (Excluding large models, use Git LFS if needed)
+# ml/models/*.pkl
+# ml/models/*.json
+
+# Data (Excluding large CSV files)
+# data/*.csv
+
+# Docker
+.dockerignore
+
+# Environment variables
+.env
+
+# IDEs
+.vscode/
+.idea/
+
+# OS
+Thumbs.db
+Desktop.ini
