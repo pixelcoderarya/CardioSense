@@ -8,6 +8,31 @@ DB_USER = os.getenv("DB_USER", "root")
 DB_PASSWORD = os.getenv("DB_PASSWORD", "masteradmin")
 DB_NAME = os.getenv("DB_NAME", "cardiosense")
 
+def init_db():
+    """Create tables if they don't exist."""
+    conn = get_db_connection()
+    if not conn:
+        return
+    try:
+        cursor = conn.cursor()
+        # Read schema file
+        schema_path = os.path.join(os.path.dirname(__file__), "schema.sql")
+        with open(schema_path, "r") as f:
+            schema = f.read()
+        
+        # Split by semicolon and execute each command
+        for command in schema.split(";"):
+            if command.strip():
+                cursor.execute(command)
+        conn.commit()
+        print("Database initialized successfully.")
+    except Error as e:
+        print(f"Error initializing database: {e}")
+    finally:
+        if conn and conn.is_connected():
+            cursor.close()
+            conn.close()
+
 def get_db_connection():
     """Establish and return a MySQL connection."""
     try:

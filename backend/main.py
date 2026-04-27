@@ -7,9 +7,14 @@ import sys
 
 # Add current directory to path for relative imports if run directly
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-from database import insert_prediction_transaction
+from database import insert_prediction_transaction, init_db
 
 app = FastAPI(title="CardioSense API", description="AI Heart Sound Analysis API")
+
+# Auto-initialize Database on startup
+@app.on_event("startup")
+def startup_event():
+    init_db()
 
 # 1. Define Input Schema
 class HeartSoundFeatures(BaseModel):
