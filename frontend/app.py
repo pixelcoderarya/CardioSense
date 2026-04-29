@@ -9,6 +9,7 @@ import os
 API_URL = os.getenv("API_URL", "http://localhost:8000/predict")
 if not API_URL.endswith("/predict"):
     API_URL = f"{API_URL.rstrip('/')}/predict"
+HISTORY_URL = API_URL.replace("/predict", "/history")
 
 st.set_page_config(
     page_title="CardioSense AI",
@@ -309,8 +310,46 @@ with tab2:
 
 with tab3:
     st.markdown("### <span style='color: #00D1FF;'>03</span> Patient Record Ledger", unsafe_allow_html=True)
+    
+    try:
+        response = requests.get(HISTORY_URL)
+        if response.status_code == 200:
+            history_data = response.json()
+            
+            if history_data:
+                # Convert to DataFrame for better display
+                df_history = pd.DataFrame(history_data)
+                
+                # Rename columns for better readability
+                df_history.columns = [
+                    "Patient ID", "Date/Time", "S1 Duration", "S2 Duration", 
+                    "Systole", "Diastole", "AI Confidence", "Risk Level"
+                ]
+                
+                # Format Date/Time
+                df_history['Date/Time'] = pd.to_datetime(df_history['Date/Time']).dt.strftime('%Y-%m-%d %H:%M')
+                
+                # Display the Table
+                st.dataframe(
+                    df_history, 
+                    use_container_width=True,
+                    hide_index=True,
+                )
+                
+                # Summary Statistics
+                c1, c2, c3 = st.columns(3)
+                c1.metric("Total Records", len(df_history))
+                c2.metric("High Risk Detected", len(df_history[df_history["Risk Level"] == "HIGH"]))
+                c3.metric("Avg Confidence", f"{df_history['AI Confidence'].mean():.1%}")
+                
+            else:
+                st.info("No clinical records found in the database yet.")
+        else:
+            st.error("Could not retrieve history from backend.")
+    except Exception as e:
+        st.error(f"Error connecting to history engine: {e}")
+
     st.markdown('<div class="card">', unsafe_allow_html=True)
-    st.info("The clinical history module is currently aggregating live data from the MySQL `PREDICTION` table.")
     st.markdown("""
         - **Real-time Synchronization**: Active
         - **Data Source**: `cardiosense_db.PREDICTIONS`

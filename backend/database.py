@@ -106,3 +106,38 @@ def insert_prediction_transaction(patient_id, features, probabilities, final_ris
         if conn and conn.is_connected():
             cursor.close()
             conn.close()
+
+def get_prediction_history(limit=50):
+    """Fetches the most recent prediction records with patient and heart sound details."""
+    conn = get_db_connection()
+    if not conn:
+        return []
+    
+    try:
+        cursor = conn.cursor(dictionary=True)
+        query = """
+        SELECT 
+            p.id as patient_id,
+            p.created_at,
+            hs.s1_duration_sec,
+            hs.s2_duration_sec,
+            hs.systole_duration_sec,
+            hs.diastole_duration_sec,
+            pr.ensemble_probability,
+            pr.final_risk_level
+        FROM PATIENT p
+        JOIN HEART_SOUND hs ON p.id = hs.patient_id
+        JOIN PREDICTION pr ON hs.id = pr.sound_id
+        ORDER BY p.created_at DESC
+        LIMIT %s
+        """
+        cursor.execute(query, (limit,))
+        results = cursor.fetchall()
+        return results
+    except Error as e:
+        print(f"Error fetching history: {e}")
+        return []
+    finally:
+        if conn and conn.is_connected():
+            cursor.close()
+            conn.close()

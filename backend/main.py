@@ -7,7 +7,7 @@ import sys
 
 # Add current directory to path for relative imports if run directly
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-from database import insert_prediction_transaction, init_db
+from database import insert_prediction_transaction, init_db, get_prediction_history
 
 app = FastAPI(title="CardioSense API", description="AI Heart Sound Analysis API")
 
@@ -106,3 +106,11 @@ def predict_heart_sound(features: HeartSoundFeatures):
         "risk_level": risk_level,
         "db_logged": db_success
     }
+
+@app.get("/history")
+def get_history(limit: int = 50):
+    """
+    Retrieves the clinical history of predictions from the database.
+    """
+    history = get_prediction_history(limit=limit)
+    return history
